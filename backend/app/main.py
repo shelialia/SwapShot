@@ -1,7 +1,6 @@
 from fastapi import FastAPI
-from .routers import transactions
+from app.routers.transactions import router
+
 
 app = FastAPI()
-
-# Include the transaction routes
-app.include_router(transactions.router)
+app.include_router(router)

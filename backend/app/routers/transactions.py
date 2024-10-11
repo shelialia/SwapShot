@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from services import get_uniswap_transactions, calculate_transaction_fee_in_usdt
-from models import TransactionFee
+from app.services.transaction_services import get_uniswap_transactions, calculate_transaction_fee_in_usdt
+from app.models.models import TransactionFee
 
 router = APIRouter()
 

@@ -3,3 +3,4 @@ uvicorn
 web3
 requests
 pytest
+python-dotenv
