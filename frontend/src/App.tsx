@@ -1,10 +1,12 @@
+import React from "react";
+import TransactionsPage from "./pages/TransactionsPage"; // Import the TransactionsPage
 
-function App() {
+const App: React.FC = () => {
   return (
-    <>
-      <h1>Vite + React</h1>
-    </>
-  )
-}
+    <div className="App">
+      <TransactionsPage /> {/* Render the TransactionsPage */}
+    </div>
+  );
+};
 
-export default App
+export default App;
