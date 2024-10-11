@@ -8,7 +8,6 @@ import {
   Transaction,
   Summary,
 } from "../services/api";
-import { Button, TextField } from "@mui/material";
 
 const TransactionsPage: React.FC = () => {
   const [txId, setTxId] = useState<string>("");
@@ -55,68 +54,62 @@ const TransactionsPage: React.FC = () => {
     loadSummary(); // Load the summary when the component mounts
   }, []);
 
-  return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Transaction Search</h1>
+    return (
+      <div className="py-8 px-8">
+        <h1 className="text-3xl font-bold mb-4">Transaction Search</h1>
 
-      {/* Search by Transaction ID */}
-      <div className="mb-4">
-        <TextField
-          label="Transaction ID"
-          variant="outlined"
-          value={txId}
-          onChange={(e) => setTxId(e.target.value)}
-          className="mr-2"
+        {/* Search by Transaction ID */}
+        <div className="flex flex-row">
+          <input
+            type="text"
+            placeholder="Search by Transaction ID"
+            value={txId}
+            onChange={(e) => setTxId(e.target.value)}
+            className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+          />
+          <button
+            onClick={handleSearchByTxId}
+            className="bg-blue-500 text-white font-semibold whitespace-nowrap px-4 py-2 ml-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          >
+            Search by Tx ID
+          </button>
+        </div>
+
+        {/* Search by Time Range */}
+        <div className="flex flex-row space-x-4 items-center mt-4">
+          <input
+            type="datetime-local"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+            className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="datetime-local"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+            className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            onClick={handleSearchByTimeRange}
+            className="bg-blue-500 text-white font-semibold px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 whitespace-nowrap"
+          >
+            Search by Time Range
+          </button>
+        </div>
+
+        {/* Transaction Table */}
+        <TransactionTable
+          transactions={transactions}
+          page={page}
+          setPage={setPage}
+          pageSize={pageSize}
+          setPageSize={setPageSize}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSearchByTxId}
-        >
-          Search by Tx ID
-        </Button>
+
+        {/* Summary Component */}
+        <SummaryComponent summary={summary} />
       </div>
-
-      {/* Search by Time Range */}
-      <div className="mb-4 flex space-x-4">
-        <TextField
-          label="Start Time"
-          type="datetime-local"
-          InputLabelProps={{ shrink: true }}
-          value={startTime}
-          onChange={(e) => setStartTime(e.target.value)}
-          className="mr-2"
-        />
-        <TextField
-          label="End Time"
-          type="datetime-local"
-          InputLabelProps={{ shrink: true }}
-          value={endTime}
-          onChange={(e) => setEndTime(e.target.value)}
-          className="mr-2"
-        />
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleSearchByTimeRange}
-        >
-          Search by Time Range
-        </Button>
-      </div>
-
-      {/* Transaction Table */}
-      <TransactionTable
-        transactions={transactions}
-        page={page}
-        setPage={setPage}
-        pageSize={pageSize}
-        setPageSize={setPageSize}
-      />
-
-      {/* Summary Component */}
-      <SummaryComponent summary={summary} />
-    </div>
-  );
+    );
 };
 
 export default TransactionsPage;
