@@ -1,14 +1,7 @@
 # Uniswap WETH-USDC Transactions
 
 ## Overview
-This project is designed to [brief description of the project]. It includes real-time transaction monitoring with exchange rates and ensures up-to-date data on page reload. The architecture is designed for separation of concerns, maintainability, and scalability.
-
-## Table of Contents
-1. [Installation](#installation)
-2. [Running the Application](#running-the-application)
-3. [Testing](#testing)
-4. [Architecture](#architecture)
-5. [Design Considerations](#design-considerations)
+This project is designed to showcase the transaction fees in USDT for all Uniswap WETH-USDC transactions. It includes real-time transaction monitoring with exchange rates and ensures up-to-date data on page reload. The architecture is designed for separation of concerns, maintainability, and scalability.
 
 ---
 
@@ -49,8 +42,8 @@ The backend is designed with a clear separation of concerns to ensure maintainab
 - All API endpoints are located in the api folder. This layer is responsible for setting up the routes and handling incoming requests.
 Services Layer: The business logic is decoupled from the API layer, ensuring a clean architecture where each service has its distinct responsibilities. The services layer is divided into four key areas:
 
-# Etherscan Service: Handles interactions with the Etherscan API to fetch blockchain data.
-# Binance Service: Responsible for interacting with the Binance API to retrieve current exchange rates (e.g., ETH to USDT).
+### Etherscan Service: Handles interactions with the Etherscan API to fetch blockchain data.
+### Binance Service: Responsible for interacting with the Binance API to retrieve current exchange rates (e.g., ETH to USDT).
 Helper Functions: A utility folder that contains reusable functions used across services.
 Transaction Service: Implements the core business logic by calling functions from the other services. This service coordinates how the data flows through the system.
 
