@@ -10,10 +10,8 @@ from app.services.helpers import process_transaction, process_transaction_id
 from app.services.exchange_services import get_historical_eth_usdt_price
 
 def fetch_transaction_by_id(txn_id: int):
-    print("Hi Im trying")
     # Fetch the transaction details
     transaction = get_transaction_by_hash(txn_id)
-    print(transaction)
 
     # Extract the block number from the transaction
     block_number = transaction["blockNumber"]
@@ -22,7 +20,6 @@ def fetch_transaction_by_id(txn_id: int):
     block_details = get_block_by_number(block_number)
 
     timestamp = int(block_details["timestamp"], 16)
-    print(timestamp)
 
     eth_usdt_price = get_historical_eth_usdt_price(timestamp)
 
@@ -71,7 +68,6 @@ async def fetch_and_process_transactions_by_block_range(
     Fetch and process USDC/ETH transactions within a block range, paginate them,
     and calculate the exchange rate based on the first transaction's timestamp.
     """
-    print("Hi, trying to get block numbers")
 
     # Step 1: Convert the start and end times to block numbers
     start_block = get_block_by_timestamp(start_time)
@@ -84,13 +80,9 @@ async def fetch_and_process_transactions_by_block_range(
         page=1,
         limit=10000,  # Fetch up to 10,000 transactions
     )
-    print(page)
-    print(limit)
     # Step 3: Calculate the slice for the current page (pagination)
     start = (page - 1) * limit
-    print(start)
     end = start + limit
-    print(end)
     paginated_transactions = transactions[start:end]
 
     if not paginated_transactions:
