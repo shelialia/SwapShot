@@ -8,6 +8,8 @@ interface Props {
   setPage: React.Dispatch<React.SetStateAction<number>>;
   pageSize: number;
   setPageSize: React.Dispatch<React.SetStateAction<number>>;
+  total: number;
+  onTransactionClick: (txId: string) => void; // New prop for handling row click
 }
 
 const TransactionTable: React.FC<Props> = ({
@@ -16,6 +18,8 @@ const TransactionTable: React.FC<Props> = ({
   setPage,
   pageSize,
   setPageSize,
+  total,
+  onTransactionClick,
 }) => {
   const handlePageChange = (
     event: React.ChangeEvent<unknown>,
@@ -30,21 +34,20 @@ const TransactionTable: React.FC<Props> = ({
 
   return (
     <div className="mt-6">
-      <h2 className="text-xl font-semibold mb-4">Transactions</h2>
       <table className="table-auto w-full border border-gray-200">
         <thead>
           <tr className="bg-gray-100">
             <th className="px-4 py-2">Tx ID</th>
-            <th className="px-4 py-2">Fee in ETH</th>
-            <th className="px-4 py-2">Fee in USDT</th>
           </tr>
         </thead>
         <tbody>
-          {transactions.map((txn) => (
-            <tr key={txn.txId} className="border-t">
+          {transactions.map((txn, index) => (
+            <tr
+              key={`${txn.txId}-${index}`}
+              className="border-t cursor-pointer hover:bg-gray-200"
+              onClick={() => onTransactionClick(txn.txId)} // Trigger the click event
+            >
               <td className="px-4 py-2">{txn.txId}</td>
-              <td className="px-4 py-2">{txn.fee_in_eth}</td>
-              <td className="px-4 py-2">{txn.fee_in_usdt}</td>
             </tr>
           ))}
         </tbody>
@@ -53,7 +56,7 @@ const TransactionTable: React.FC<Props> = ({
       {/* Pagination */}
       <div className="flex justify-between items-center mt-4">
         <Pagination
-          count={Math.ceil(transactions.length / pageSize)}
+          count={Math.ceil(total / pageSize)} // Use total for pagination count
           page={page}
           onChange={handlePageChange}
           color="primary"
