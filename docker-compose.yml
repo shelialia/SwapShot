@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend  # Path to your backend directory (not Dockerfile)
+    container_name: fastapi-backend
+    ports:
+      - "8000:8000"  # Map host port 8000 to container port 8000
+    volumes:
+      - ./backend:/app  # Sync the local code for live development
+
+  frontend:
+    build:
+      context: ./frontend  # Path to your frontend directory (not Dockerfile)
+    container_name: react-frontend
+    ports:
+      - "3000:3000"  # Map host port 3000 to container port 3000
+    stdin_open: true
+    tty: true

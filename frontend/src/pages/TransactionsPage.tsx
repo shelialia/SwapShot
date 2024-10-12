@@ -15,18 +15,19 @@ const TransactionsPage: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(50);
-    const [total, setTotal] = useState<number>(0);
-    const [selectedTransaction, setSelectedTransaction] =
-      useState<Transaction | null>(null);
+  const [total, setTotal] = useState<number>(0);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
+  const [isTimeRangeSearch, setIsTimeRangeSearch] = useState<boolean>(false); // New state to track search mode
 
-    const handleTransactionClick = async (txId: string) => {
-      try {
-        const data = await fetchTransactionByTxId(txId);
-        setSelectedTransaction(data); // Set the selected transaction
-      } catch (error) {
-        console.error("Error fetching transaction details:", error);
-      }
-    };
+  const handleTransactionClick = async (txId: string) => {
+    try {
+      const data = await fetchTransactionByTxId(txId);
+      setSelectedTransaction(data); // Set the selected transaction
+    } catch (error) {
+      console.error("Error fetching transaction details:", error);
+    }
+  };
 
   const handleSearchByTxId = async () => {
     try {
@@ -39,7 +40,7 @@ const TransactionsPage: React.FC = () => {
 
   const handleSearchByTimeRange = async () => {
     try {
-      console.log("trying to fetch data");
+      console.log("Trying to fetch data by time range");
       const data = await fetchTransactionsByTimeRange(
         startTime,
         endTime,
@@ -47,8 +48,9 @@ const TransactionsPage: React.FC = () => {
         pageSize
       );
       setTransactions(data.transactions); // Set transactions
-        setTotal(data.total); // Set total from the API response
-        console.log("Hi I set the time range data")
+      setTotal(data.total); // Set total from the API response
+      setIsTimeRangeSearch(true); // Set mode to time range search
+      console.log("Set time range data");
     } catch (error) {
       console.error("Error fetching transactions by time range:", error);
     }
@@ -56,20 +58,23 @@ const TransactionsPage: React.FC = () => {
 
   const loadAllTransactions = async (page: number, pageSize: number) => {
     try {
-      console.log("Hi I am trying");
+      console.log("Fetching all transactions");
       const data = await fetchAllTransactions(page, pageSize); // Fetch transactions with page and pageSize
-      console.log(data);
       setTransactions(data.transactions); // Set transactions
       setTotal(data.total); // Set total from the API response
       console.log(data.transactions);
     } catch (error) {
-      console.error("Error fetching summary:", error);
+      console.error("Error fetching all transactions:", error);
     }
   };
 
   // Trigger API call whenever page or pageSize changes
   useEffect(() => {
-    loadAllTransactions(page, pageSize);
+    if (isTimeRangeSearch) {
+      handleSearchByTimeRange(); // Fetch by time range if in time range search mode
+    } else {
+      loadAllTransactions(page, pageSize); // Otherwise, fetch all transactions
+    }
   }, [page, pageSize]); // Re-run the effect when page or pageSize changes
 
   return (
