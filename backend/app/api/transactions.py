@@ -1,9 +1,4 @@
 from fastapi import APIRouter, HTTPException
-# from app.cache.transaction_cache import (
-#     get_transaction_by_id,
-#     get_all_cached_transactions,
-# )
-from app.models.transaction import TransactionFee
 from app.services.exchange_services import get_eth_usdt_price
 from app.services.transaction_services import (
     fetch_and_process_transactions,

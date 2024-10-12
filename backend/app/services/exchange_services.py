@@ -1,6 +1,6 @@
 import requests
 from app.config import BINANCE_URL, BINANCE_HISTORICAL_URL
-
+import time
 
 def calculate_transaction_fee_in_eth_and_usdt(gas_price, gas_used, eth_usdt_price):
     """Calculate the transaction fee in USDT."""
@@ -17,12 +17,6 @@ def get_eth_usdt_price():
         return float(response.json()["price"])
     else:
         raise Exception("Error fetching ETH/USDT price")
-
-
-import requests
-import time
-
-BINANCE_HISTORICAL_URL = "https://api.binance.com/api/v3/klines"  # Example endpoint
 
 
 def get_historical_eth_usdt_price(epoch_time, retries=3, fallback_price=2000.0):
