@@ -53,14 +53,14 @@ const TransactionsPage: React.FC = () => {
     }
   };
 
-  const loadAllTransactions = async () => {
-      try {
-        console.log("Hi I am trying")
-          const data = await fetchAllTransactions(page, pageSize); // Fetch transactions with page and pageSize
-          console.log(data)
+  const loadAllTransactions = async (page: number, pageSize: number) => {
+    try {
+      console.log("Hi I am trying");
+      const data = await fetchAllTransactions(page, pageSize); // Fetch transactions with page and pageSize
+      console.log(data);
       setTransactions(data.transactions); // Set transactions
-        setTotal(data.total); // Set total from the API response
-        console.log(data.transactions);
+      setTotal(data.total); // Set total from the API response
+      console.log(data.transactions);
     } catch (error) {
       console.error("Error fetching summary:", error);
     }
@@ -68,7 +68,7 @@ const TransactionsPage: React.FC = () => {
 
   // Trigger API call whenever page or pageSize changes
   useEffect(() => {
-    loadAllTransactions();
+    loadAllTransactions(page, pageSize);
   }, [page, pageSize]); // Re-run the effect when page or pageSize changes
 
   return (

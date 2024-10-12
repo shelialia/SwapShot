@@ -1,6 +1,6 @@
 import React from "react";
-import { Transaction } from "../services/api";
 import { Pagination } from "@mui/material";
+import { Transaction } from "../services/api";
 
 interface Props {
   transactions: Transaction[];
@@ -9,7 +9,7 @@ interface Props {
   pageSize: number;
   setPageSize: React.Dispatch<React.SetStateAction<number>>;
   total: number;
-  onTransactionClick: (txId: string) => void; // New prop for handling row click
+  onTransactionClick: (txId: string) => void;
 }
 
 const TransactionTable: React.FC<Props> = ({
@@ -25,11 +25,11 @@ const TransactionTable: React.FC<Props> = ({
     event: React.ChangeEvent<unknown>,
     value: number
   ) => {
-    setPage(value);
+    setPage(value); // Update the current page
   };
 
   const handlePageSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPageSize(parseInt(event.target.value, 10));
+    setPageSize(parseInt(event.target.value, 10)); // Update the page size
   };
 
   return (
@@ -45,7 +45,7 @@ const TransactionTable: React.FC<Props> = ({
             <tr
               key={`${txn.txId}-${index}`}
               className="border-t cursor-pointer hover:bg-gray-200"
-              onClick={() => onTransactionClick(txn.txId)} // Trigger the click event
+              onClick={() => onTransactionClick(txn.txId)}
             >
               <td className="px-4 py-2">{txn.txId}</td>
             </tr>
@@ -53,12 +53,12 @@ const TransactionTable: React.FC<Props> = ({
         </tbody>
       </table>
 
-      {/* Pagination */}
+      {/* Pagination Controls */}
       <div className="flex justify-between items-center mt-4">
         <Pagination
-          count={Math.ceil(total / pageSize)} // Use total for pagination count
-          page={page}
-          onChange={handlePageChange}
+          count={Math.ceil(total / pageSize)} // Calculate total number of pages
+          page={page} // Current page
+          onChange={handlePageChange} // Handle page changes
           color="primary"
         />
 
@@ -68,7 +68,7 @@ const TransactionTable: React.FC<Props> = ({
           <input
             type="number"
             value={pageSize}
-            onChange={handlePageSizeChange}
+            onChange={handlePageSizeChange} // Handle page size changes
             className="border px-2 py-1"
             min="1"
             max="100"

@@ -34,7 +34,7 @@ export const fetchTransactionsByTimeRange = async (
   start: string,
   end: string,
   page = 1,
-  limit = 50
+  limit = 100
 ): Promise<{ transactions: Transaction[]; total: number }> => {
   const startUnix = Math.floor(new Date(start).getTime() / 1000); // Convert to Unix timestamp
   const endUnix = Math.floor(new Date(end).getTime() / 1000); // Convert to Unix timestamp
@@ -55,8 +55,8 @@ export const fetchTransactionsByTimeRange = async (
 
 // Fetch all transactions (paginated) using axios
 export const fetchAllTransactions = async (
-  page: number = 1,
-  limit: number = 50
+  page: number,
+  limit: number
 ): Promise<{ transactions: Transaction[]; total: number }> => {
     try {
         console.log("Hi")
