@@ -40,15 +40,9 @@ export const fetchTransactionsByTimeRange = async (
   const endUnix = Math.floor(new Date(end).getTime() / 1000); // Convert to Unix timestamp
     console.log(startUnix)
     console.log(endUnix)
-  const response = await axiosInstance.get("/transactions", {
-    params: {
-      start_time: startUnix,
-      end_time: endUnix,
-      page, // Current page number
-      limit, // Number of transactions per page
-    },
-  });
-  console.log(response.data)
+  const response = await axiosInstance.get(`/transaction/${startUnix}/${endUnix}/${page}/${limit}`);
+    console.log("txn in time interval")
+    console.log(response.data);
 
   return response.data;
 };

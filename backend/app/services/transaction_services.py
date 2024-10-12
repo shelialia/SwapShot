@@ -65,40 +65,54 @@ async def fetch_and_process_transactions(page: int, limit: int = 50):
 
 
 async def fetch_and_process_transactions_by_block_range(
-    start_time: int, end_time: int, page: int, limit: int
+    start_time: int, end_time: int, page: int, limit: int=50
 ):
     """
     Fetch and process USDC/ETH transactions within a block range, paginate them,
     and calculate the exchange rate based on the first transaction's timestamp.
     """
+    print("Hi, trying to get block numbers")
+
     # Step 1: Convert the start and end times to block numbers
     start_block = get_block_by_timestamp(start_time)
     end_block = get_block_by_timestamp(end_time)
 
-    # Step 2: Fetch transactions for the current page from the Etherscan API
+    # Step 2: Fetch all transactions within the block range
     transactions = get_usdc_eth_transactions_by_block_range(
-        start_block=start_block, end_block=end_block, page=page, limit=limit
+        start_block=start_block,
+        end_block=end_block,
+        page=1,
+        limit=10000,  # Fetch up to 10,000 transactions
     )
+    print(page)
+    print(limit)
+    # Step 3: Calculate the slice for the current page (pagination)
+    start = (page - 1) * limit
+    print(start)
+    end = start + limit
+    print(end)
+    paginated_transactions = transactions[start:end]
 
-    if not transactions:
-        raise ValueError("No transactions found for the specified block range")
+    if not paginated_transactions:
+        raise ValueError(f"No transactions found for page {page}")
 
-    # Step 3: Fetch the exchange rate (ETH/USDT) only once based on the first transaction's timestamp
-    epoch_time = int(transactions[0]["timeStamp"])
+    # Step 4: Fetch the exchange rate (ETH/USDT) only once based on the first transaction's timestamp
+    epoch_time = int(paginated_transactions[0]["timeStamp"])
     eth_usdt_price = get_historical_eth_usdt_price(epoch_time)
 
-    # Step 4: Process the transactions and calculate fees using the exchange rate
+    # Step 5: Process the paginated transactions and calculate fees using the exchange rate
     with concurrent.futures.ThreadPoolExecutor() as executor:
         results = list(
             executor.map(
-                lambda txn: process_transaction(txn, eth_usdt_price), transactions
+                lambda txn: process_transaction(txn, eth_usdt_price),
+                paginated_transactions,
             )
         )
 
-    # Step 5: Return paginated results and total transaction count
+    # Step 6: Return paginated results and total transaction count
     return {
         "transactions": results,
-        "total": len(transactions),  # Total transactions within the current block range
+        "total": len(transactions),  # Total number of transactions (from block range)
         "page": page,
         "limit": limit,
     }

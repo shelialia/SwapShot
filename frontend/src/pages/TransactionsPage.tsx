@@ -47,7 +47,8 @@ const TransactionsPage: React.FC = () => {
         pageSize
       );
       setTransactions(data.transactions); // Set transactions
-      setTotal(data.total); // Set total from the API response
+        setTotal(data.total); // Set total from the API response
+        console.log("Hi I set the time range data")
     } catch (error) {
       console.error("Error fetching transactions by time range:", error);
     }

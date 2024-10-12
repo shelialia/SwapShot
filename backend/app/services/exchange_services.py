@@ -19,8 +19,17 @@ def get_eth_usdt_price():
         raise Exception("Error fetching ETH/USDT price")
 
 
-def get_historical_eth_usdt_price(epoch_time):
-    """Fetch the historical ETH/USDT price from Binance at a specific epoch time."""
+import requests
+import time
+
+BINANCE_HISTORICAL_URL = "https://api.binance.com/api/v3/klines"  # Example endpoint
+
+
+def get_historical_eth_usdt_price(epoch_time, retries=3, fallback_price=2000.0):
+    """
+    Fetch the historical ETH/USDT price from Binance at a specific epoch time.
+    If the fetch fails, retry up to `retries` times and use a fallback price if necessary.
+    """
     # Convert the epoch time to milliseconds (Binance API uses milliseconds)
     timestamp = epoch_time * 1000
 
@@ -31,21 +40,29 @@ def get_historical_eth_usdt_price(epoch_time):
         "limit": 1,  # Limit the result to one record
     }
 
-    try:
-        response = requests.get(BINANCE_HISTORICAL_URL, params=params)
+    attempt = 0
+    close_price = None
 
-        # Initialize close_price to None in case the response doesn't meet the conditions
-        close_price = None
+    # Retry logic in case of failures
+    while attempt < retries:
+        try:
+            response = requests.get(BINANCE_HISTORICAL_URL, params=params)
 
-        # Check if response is successful (status code 200)
-        if response.status_code == 200 and len(response.json()) > 0:
-            data = response.json()
-            close_price = float(data[0][4])  # The 5th element is the 'close' price
+            # Check if response is successful (status code 200)
+            if response.status_code == 200 and len(response.json()) > 0:
+                data = response.json()
+                close_price = float(data[0][4])  # The 5th element is the 'close' price
 
-        if close_price is None:
-            raise Exception("Close price could not be fetched from the API.")
+            if close_price is not None:
+                return close_price  # Return the fetched price if successful
 
-        return close_price
+        except Exception as e:
+            print(f"Attempt {attempt + 1} failed: {str(e)}")
 
-    except Exception as e:
-        raise e
+        # Wait before retrying
+        attempt += 1
+        time.sleep(1)  # Optional delay between retries
+
+    # If all retries fail, return the fallback price
+    print(f"All attempts failed. Returning fallback price: {fallback_price}")
+    return fallback_price

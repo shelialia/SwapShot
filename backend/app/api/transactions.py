@@ -21,9 +21,10 @@ async def get_transaction_by_hash(txId: str):
 
 
 @router.get("/transaction/{start_time}/{end_time}/{page}/{limit}")
-async def get_transaction_by_time_interval(start_time: str, end_time: str, page: int, limit, int = 50):
+async def get_transaction_by_time_interval(start_time: str, end_time: str, page: int, limit: int = 50):
     """Fetch transactions in the time interval, calculate fees, and return paginated data"""
     try:
+        print("Hi I am endpoint 2")
         transactions = await fetch_and_process_transactions_by_block_range(start_time, end_time, page, limit)
         return transactions
     except Exception as e:
