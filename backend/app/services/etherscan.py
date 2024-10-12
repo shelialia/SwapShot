@@ -36,6 +36,28 @@ def get_block_by_number(block_number_hex: str):
     response = requests.get(ETHERSCAN_URL, params=params)
     return response.json()["result"]
 
+def get_block_by_timestamp(timestamp: int) -> int:
+    """
+    Fetch the block number for the given Unix timestamp.
+    """
+    params = {
+        "module": "block",
+        "action": "getblocknobytime",
+        "timestamp": timestamp,
+        "closest": "before",
+        "apikey": ETHERSCAN_API_KEY,
+    }
+
+    response = requests.get(ETHERSCAN_URL, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        if data["status"] == "1":
+            return int(data["result"])  # Return block number as integer
+        else:
+            raise ValueError(f"Error fetching block by timestamp: {data['message']}")
+    else:
+        raise Exception(f"Error fetching block by timestamp: {response.status_code}")
+
 
 def get_uniswap_transactions(limit: int = 10000):
     """Fetch 10,000 Uniswap transactions."""
@@ -58,5 +80,44 @@ def get_uniswap_transactions(limit: int = 10000):
             return data["result"]  # Return the transactions
         else:
             raise Exception(f"Etherscan API error: {data.get('message', 'No result')}")
+    else:
+        raise Exception(f"Error fetching transactions: {response.status_code}")
+
+
+def get_usdc_eth_transactions_by_block_range(
+    start_block: int, end_block: int, page: int, limit: int
+):
+    """
+    Fetch USDC/ETH transactions from the Uniswap V3 pool by block range using the Etherscan API.
+    Handles the case where no transactions are found.
+    """
+    params = {
+        "module": "account",
+        "action": "tokentx",  # Fetch token transactions (including token swaps)
+        "address": UNISWAP_POOL_ADDRESS,  # Uniswap V3 Pool Address for USDC/ETH
+        "startblock": start_block,
+        "endblock": end_block,
+        "sort": "asc",
+        "apikey": ETHERSCAN_API_KEY,
+        "offset": limit,
+        "page": page,
+    }
+
+    response = requests.get(ETHERSCAN_URL, params=params)
+
+    if response.status_code == 200:
+        data = response.json()
+
+        if data["status"] == "1":
+            transactions = data.get("result", [])
+            if transactions:
+                return transactions  # Return the list of transactions
+            else:
+                return []  # Return an empty list if no transactions are found
+        else:
+            raise ValueError(
+                f"Etherscan API error: {data.get('message', 'No transactions found')}"
+            )
+
     else:
         raise Exception(f"Error fetching transactions: {response.status_code}")

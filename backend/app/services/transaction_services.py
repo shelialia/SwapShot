@@ -1,5 +1,11 @@
 import concurrent 
-from app.services.etherscan import get_uniswap_transactions, get_transaction_by_hash, get_block_by_number
+from app.services.etherscan import (
+    get_uniswap_transactions,
+    get_transaction_by_hash,
+    get_block_by_number,
+    get_block_by_timestamp,
+    get_usdc_eth_transactions_by_block_range,
+)
 from app.services.helpers import process_transaction, process_transaction_id
 from app.services.exchange_services import get_historical_eth_usdt_price
 
@@ -22,31 +28,6 @@ def fetch_transaction_by_id(txn_id: int):
 
     processed_transaction = process_transaction_id(transaction, eth_usdt_price, timestamp)
     return processed_transaction
-
-async def fetch_transactions_in_time_interval(start_time, end_time):
-    start_block = get_block_by_timestamp(start_time)
-    end_block = get_block_by_timestamp(end_time)
-
-    if not start_block or not end_block:
-        raise HTTPException(status_code=400, detail="Invalid block range")
-
-    # Step 2: Fetch and process transactions based on the block range
-    transactions, total_transactions = (
-        await fetch_and_process_transactions_by_block_range(
-            start_block=start_block,
-            end_block=end_block,
-            page=page,
-            limit=limit,
-        )
-    )
-
-    # Step 3: Return the paginated transactions and total count
-    return {
-        "transactions": transactions,
-        "total": total_transactions,
-        "page": page,
-        "limit": limit,
-    }
 
 
 async def fetch_and_process_transactions(page: int, limit: int = 50):
@@ -78,6 +59,46 @@ async def fetch_and_process_transactions(page: int, limit: int = 50):
     return {
         "transactions": results,
         "total": len(transactions),  # Total number of transactions (10,000)
+        "page": page,
+        "limit": limit,
+    }
+
+
+async def fetch_and_process_transactions_by_block_range(
+    start_time: int, end_time: int, page: int, limit: int
+):
+    """
+    Fetch and process USDC/ETH transactions within a block range, paginate them,
+    and calculate the exchange rate based on the first transaction's timestamp.
+    """
+    # Step 1: Convert the start and end times to block numbers
+    start_block = get_block_by_timestamp(start_time)
+    end_block = get_block_by_timestamp(end_time)
+
+    # Step 2: Fetch transactions for the current page from the Etherscan API
+    transactions = get_usdc_eth_transactions_by_block_range(
+        start_block=start_block, end_block=end_block, page=page, limit=limit
+    )
+
+    if not transactions:
+        raise ValueError("No transactions found for the specified block range")
+
+    # Step 3: Fetch the exchange rate (ETH/USDT) only once based on the first transaction's timestamp
+    epoch_time = int(transactions[0]["timeStamp"])
+    eth_usdt_price = get_historical_eth_usdt_price(epoch_time)
+
+    # Step 4: Process the transactions and calculate fees using the exchange rate
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        results = list(
+            executor.map(
+                lambda txn: process_transaction(txn, eth_usdt_price), transactions
+            )
+        )
+
+    # Step 5: Return paginated results and total transaction count
+    return {
+        "transactions": results,
+        "total": len(transactions),  # Total transactions within the current block range
         "page": page,
         "limit": limit,
     }
