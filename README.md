@@ -21,9 +21,12 @@ This project is designed to showcase the transaction fees in USDT for all Uniswa
 - npm install
 
 ## Using Docker (Optional)
-To Build the Docker image: docker-compose up
-Your backend will be running on http://localhost:8000.
-and your frontend will be running on http://localhost:3000.
+To Build and Run the Docker containers: docker-compose up
+Your backend will be running on: http://localhost:8000
+Your frontend will be running on: http://localhost:3000
+This command will build the images for both the backend and frontend, then start the containers.
+
+If you only want to build the images without running them immediately, you can use: docker-compose build
 
 ## Running the Application Locally (without Docker)
 Once dependencies are installed, you can run the frontend using npm run dev. 
