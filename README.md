@@ -1,4 +1,4 @@
-# Project Name
+# Uniswap WETH-USDC Transactions
 
 ## Overview
 This project is designed to [brief description of the project]. It includes real-time transaction monitoring with exchange rates and ensures up-to-date data on page reload. The architecture is designed for separation of concerns, maintainability, and scalability.
