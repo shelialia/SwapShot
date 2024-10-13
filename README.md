@@ -3,6 +3,15 @@
 ## Overview
 This project is designed to showcase the transaction fees in USDT for all Uniswap WETH-USDC transactions. It includes real-time transaction monitoring with exchange rates and ensures up-to-date data on page reload. The architecture is designed for separation of concerns, maintainability, and scalability.
 
+Please note that the data fetching on the frontend will take around 4-5 seconds when the website is first opened. Subsequent fetches will be faster. A delay will also occur for fetching information for a certain transaction and filtering.
+
+### Use Cases
+1. When no filter or search is applied, the page will fetch the 10,00 most recent transactions for display. User can click on each of the txn_ids in the table to see more information about the transaction (such as the date and time at which it took place, the fee in USDT and fee in ETH (calculated based on the historical exchange rate at the point of the time that the transaction occured, the exchange rate at that time, and the current exchange rate)
+2. User can filter for transactions between start date and time, and end date and time.
+3. User can search for a transaction based on the txn_id / txn_hash.
+4. User can navigate to the next page by clicking on the page numbers.
+5. User can change the number of rows seen on the page -- default set to 50 rows per page.
+   
 ---
 
 ## Installation
@@ -10,15 +19,24 @@ This project is designed to showcase the transaction fees in USDT for all Uniswa
 ### Prerequisites
 - [Node.js](https://nodejs.org/en/) (version 16+)
 - [Docker](https://www.docker.com/) (optional, if you're using Docker to run your application)
-- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+- [npm](https://www.npmjs.com/)
 
 ### Steps to Install
 1. Clone the repository:
-- git clone https://github.com/your-username/your-repo.git
-- cd your-repo
+- cd into your desired workspace
+- git clone https://github.com/shelialia/tokka_labs_engineering_challenge.git
 
 2. Install dependencies:
 - npm install
+
+## Running the Application Locally (without Docker)
+Once dependencies are installed, you can run the frontend using: 
+- npm run dev 
+This will start the frontend application at [http://localhost:5173](http://localhost:5173).
+Then, run the backend using:
+- cd backend
+- uvicorn app.main:app --reload
+This will start the fastapi backend at [http://172.18.0.2:3000](http://127.0.0.1:8000).
 
 ## Using Docker (Optional)
 To Build and Run the Docker containers: docker-compose up
@@ -28,40 +46,39 @@ This command will build the images for both the backend and frontend, then start
 
 If you only want to build the images without running them immediately, you can use: docker-compose build
 
-## Running the Application Locally (without Docker)
-Once dependencies are installed, you can run the frontend using npm run dev. 
-This will start the frontend application at [http://localhost:5173](http://localhost:5173).
-Then, run the backend using fastapi dev main.py.
-This will start the fastapi backend at [http://172.18.0.2:3000](http://127.0.0.1:8000).
-
 ## Testing
-To run the test suite for the frontend, use: npm run test
-This project uses Jest for unit and integration tests. The test cases check the various functions in the backend to ensure correctness.
+To run the test suite (made by Jest) for the frontend, use: npm run test
+The test suite for the backend has been submitted in a separate folder due to issues with import errors resulting in the app not working. 
 
-### Backend Architecture
+## Backend Architecture
 The backend is designed with a clear separation of concerns to ensure maintainability and scalability.
 
-## API Layer:
-- All API endpoints are located in the api folder. This layer is responsible for setting up the routes and handling incoming requests.
-Services Layer: The business logic is decoupled from the API layer, ensuring a clean architecture where each service has its distinct responsibilities. The services layer is divided into four key areas:
+### Backend:
+- API Folder: All API endpoints are located here. This layer is responsible for setting up api endpoints and handling incoming requests.
+- Services Folder: The business logic is decoupled from the API layer, ensuring a clean architecture where each service has its distinct responsibilities. The services layer is divided into four key areas:
+1. Etherscan Service (etherscan.py): Handles interactions with the Etherscan API to fetch blockchain data.
+2. Binance Service (exchange_services.py): Responsible for interacting with the Binance API to retrieve current exchange rates (e.g., ETH to USDT). Note that the Binance API is indeterministic (unable to return a float at certain times), therefore I have chosen to return 2000 in the event that it occurs. This prevents an error from being raised that could result in the backend service going down).
+3. Helper Service (helpers.py): A utility folder that contains reusable functions used across services.
+4. Transaction Service (transaction_services): Implements the core business logic by calling functions from the other services. This service coordinates how the data flows through the system. The functions here are used called directly in the API endpoint. 
 
-### Etherscan Service: Handles interactions with the Etherscan API to fetch blockchain data.
-### Binance Service: Responsible for interacting with the Binance API to retrieve current exchange rates (e.g., ETH to USDT).
-Helper Functions: A utility folder that contains reusable functions used across services.
-Transaction Service: Implements the core business logic by calling functions from the other services. This service coordinates how the data flows through the system.
-
-## Dockerization:
-The backend is fully Dockerized, running in a separate container from the frontend to isolate the two environments. This setup allows for easier scaling and ensures that the backend can be deployed independently of the frontend.
-
-## Version Control:
-I employed Git version control throughout the project. Frequent commits were made after each key feature was completed to maintain a clear development history, which makes tracking changes and collaboration easier.
-
-## Frontend Architecture:
-The frontend is built with reusability and state management in mind.
-
-## Real-time Updates:
-Each time the page is reloaded, the application fetches the latest transaction data and exchange rates, ensuring users always see up-to-date information.
-Caching (Not Implemented):
-
+### Caching (Not Implemented):
 Initially, I considered implementing a caching mechanism for the backend with a time-to-live (TTL) of 2 seconds to reduce API requests and improve performance.
 Reason for Not Using Cache: I decided against caching because the real-time nature of the data is critical. Even a short caching window could result in outdated or inconsistent transaction statuses and exchange rates, which would compromise the user experience. The priority was to ensure that users always see the most accurate and current data.
+
+## Dockerization:
+The backend and frontend are dockerized separately. This setup allows for easier scaling and ensures that the backend can be deployed independently of the frontend.
+
+## Version Control:
+I employed Git version control throughout the project. As I am the only one working on the project, I decided to work on main branch. However, in a team setting, it is important to use Git branching for version control to ensure isolation of features/changes, parallel development, and easy code review and collaboration. 
+In this project, I made frequent commits after each key feature was completed to maintain a clear development history.
+
+## Frontend Architecture:
+The frontend is designed with a focus on reusability, scalability in mind, and efficient rendering. 
+To ensure code reusaibility and simplification of maintenance, I used a component-based architecture, where each UI element is encapsulated into reusable, self-contained components.
+To efficiently handle large datasets, I also implemented server-side pagination. Instead of fetching all data at once, we only retrieve a subset of the data on demand, optimizing both performance and user experience.
+- API-Driven Pagination: The frontend passes the current page number and limit (number of items per page) as parameters to the API. Although there are 10,000 total items available, we only fetch a limited number of items (e.g., 50 items per page) to avoid overloading the client.
+- Lazy Data Fetching: While all 200 available page numbers are displayed in the UI, the actual data for a specific page is only fetched when the user selects a page number. This approach minimizes the initial data load, making the application more responsive.
+- Dynamic Data Fetching: When a user clicks on a page number, the application dynamically fetches the corresponding data from the API, ensuring that only the necessary data is loaded at any given time.
+
+
+
