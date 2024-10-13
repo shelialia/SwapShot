@@ -1,91 +1,125 @@
-import pytest
 import requests
-import requests_mock
-from app.services.etherscan import (
-    get_transaction_by_hash,
-    get_block_by_number,
-    get_block_by_timestamp,
-    get_uniswap_transactions,
-    get_usdc_eth_transactions_by_block_range,
+from app.config import (
+    ETHERSCAN_API_KEY,
+    ETHERSCAN_URL,
+    UNISWAP_POOL_ADDRESS,
 )
 
-ETHERSCAN_API_KEY = "mock_api_key"
-ETHERSCAN_URL = "https://api.etherscan.io/api"
-UNISWAP_POOL_ADDRESS = "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"
 
-# Test get_transaction_by_hash
-def test_get_transaction_by_hash(requests_mock):
-    tx_hash = "0x12345"
-    mock_response = {
-        "status": "1",
-        "result": {
-            "hash": tx_hash,
-            "from": "0xabcde",
-            "to": "0xfghij",
-            "value": "1000000000000000000",
-        },
+def get_transaction_by_hash(tx_hash: str):
+    """Fetch a transaction by its hash from Etherscan."""
+    try:
+        params = {
+            "module": "proxy",
+            "action": "eth_getTransactionByHash",
+            "txhash": tx_hash,
+            "apikey": ETHERSCAN_API_KEY,
+        }
+
+        response = requests.get(ETHERSCAN_URL, params=params)
+        data = response.json()
+
+        if response.status_code == 200 and data.get("result"):
+            return data["result"]
+    except Exception as e:
+        raise e
+
+
+def get_block_by_number(block_number_hex: str):
+    """Fetch block details by block number in hex to get the timestamp."""
+    params = {
+        "module": "proxy",
+        "action": "eth_getBlockByNumber",
+        "tag": block_number_hex,
+        "boolean": "true",
+        "apikey": ETHERSCAN_API_KEY,
     }
-    requests_mock.get(f"{ETHERSCAN_URL}?module=proxy&action=eth_getTransactionByHash&txhash={tx_hash}&apikey={ETHERSCAN_API_KEY}", json=mock_response)
+    response = requests.get(ETHERSCAN_URL, params=params)
+    return response.json()["result"]
 
-    transaction = get_transaction_by_hash(tx_hash)
-    assert transaction["hash"] == tx_hash
 
-# Test get_block_by_number
-def test_get_block_by_number(requests_mock):
-    block_number_hex = "0x10d4f"
-    mock_response = {
-        "status": "1",
-        "result": {
-            "timestamp": "1625097600",
-            "number": block_number_hex,
-        },
+def get_block_by_timestamp(timestamp: int) -> int:
+    """
+    Fetch the block number for the given Unix timestamp.
+    """
+    params = {
+        "module": "block",
+        "action": "getblocknobytime",
+        "timestamp": timestamp,
+        "closest": "before",
+        "apikey": ETHERSCAN_API_KEY,
     }
-    requests_mock.get(f"{ETHERSCAN_URL}?module=proxy&action=eth_getBlockByNumber&tag={block_number_hex}&boolean=true&apikey={ETHERSCAN_API_KEY}", json=mock_response)
 
-    block = get_block_by_number(block_number_hex)
-    assert block["timestamp"] == "1625097600"
+    response = requests.get(ETHERSCAN_URL, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        if data["status"] == "1":
+            return int(data["result"])  # Return block number as integer
+        else:
+            raise ValueError(f"Error fetching block by timestamp: {data['message']}")
+    else:
+        raise Exception(f"Error fetching block by timestamp: {response.status_code}")
 
-# Test get_block_by_timestamp
-def test_get_block_by_timestamp(requests_mock):
-    timestamp = 1625097600
-    block_number = 123456
-    mock_response = {
-        "status": "1",
-        "result": str(block_number),
+
+def get_uniswap_transactions(limit: int = 10000):
+    """Fetch 10,000 Uniswap transactions."""
+    params = {
+        "module": "account",
+        "action": "tokentx",
+        "address": UNISWAP_POOL_ADDRESS,
+        "startblock": 0,
+        "endblock": 99999999,
+        "sort": "desc",
+        "apikey": ETHERSCAN_API_KEY,
+        "offset": limit,  # Fetch up to 10,000 transactions in one API call
+        "page": 1,  # Only fetch the first page (10,000 transactions)
     }
-    requests_mock.get(f"{ETHERSCAN_URL}?module=block&action=getblocknobytime&timestamp={timestamp}&closest=before&apikey={ETHERSCAN_API_KEY}", json=mock_response)
 
-    block_num = get_block_by_timestamp(timestamp)
-    assert block_num == block_number
+    response = requests.get(ETHERSCAN_URL, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        if data["status"] == "1" and "result" in data:
+            return data["result"]  # Return the transactions
+        else:
+            raise Exception(f"Etherscan API error: {data.get('message', 'No result')}")
+    else:
+        raise Exception(f"Error fetching transactions: {response.status_code}")
 
-# Test get_uniswap_transactions
-def test_get_uniswap_transactions(requests_mock):
-    mock_response = {
-        "status": "1",
-        "result": [
-            {"hash": "0xabcde", "from": "0x12345", "to": "0x67890", "value": "1000000"}
-        ],
+
+def get_usdc_eth_transactions_by_block_range(
+    start_block: int, end_block: int, page: int, limit: int
+):
+    """
+    Fetch USDC/ETH transactions from the Uniswap V3 pool by block range using the Etherscan API.
+    Handles the case where no transactions are found.
+    """
+    params = {
+        "module": "account",
+        "action": "tokentx",  # Fetch token transactions (including token swaps)
+        "address": UNISWAP_POOL_ADDRESS,  # Uniswap V3 Pool Address for USDC/ETH
+        "startblock": start_block,
+        "endblock": end_block,
+        "sort": "asc",
+        "apikey": ETHERSCAN_API_KEY,
+        "offset": limit,
+        "page": page,
     }
-    requests_mock.get(f"{ETHERSCAN_URL}?module=account&action=tokentx&address={UNISWAP_POOL_ADDRESS}&startblock=0&endblock=99999999&sort=desc&apikey={ETHERSCAN_API_KEY}&offset=10000&page=1", json=mock_response)
 
-    transactions = get_uniswap_transactions()
-    assert len(transactions) == 1
-    assert transactions[0]["hash"] == "0xabcde"
+    response = requests.get(ETHERSCAN_URL, params=params)
 
-# Test get_usdc_eth_transactions_by_block_range
-def test_get_usdc_eth_transactions_by_block_range(requests_mock):
-    start_block = 123456
-    end_block = 123460
-    mock_response = {
-        "status": "1",
-        "result": [
-            {"hash": "0xabcde", "from": "0x12345", "to": "0x67890", "value": "1000000"}
-        ],
-    }
-    requests_mock.get(f"{ETHERSCAN_URL}?module=account&action=tokentx&address={UNISWAP_POOL_ADDRESS}&startblock={start_block}&endblock={end_block}&sort=asc&apikey={ETHERSCAN_API_KEY}&offset=50&page=1", json=mock_response)
+    if response.status_code == 200:
+        data = response.json()
 
-    transactions = get_usdc_eth_transactions_by_block_range(
-        start_block=start_block, end_block=end_block, page=1, limit=50
-    )
-    assert len(transactions) == 1
-    assert transactions[0]["hash"] == "0xabcde"
+        if data["status"] == "1":
+            transactions = data.get("result", [])
+            if transactions:
+                return transactions  # Return the list of transactions
+            else:
+                return []  # Return an empty list if no transactions are found
+        else:
+            raise ValueError(
+                f"Etherscan API error: {data.get('message', 'No transactions found')}"
+            )
+
+    else:
+        raise Exception(f"Error fetching transactions: {response.status_code}")
