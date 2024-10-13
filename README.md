@@ -30,12 +30,11 @@ Please note that the data fetching on the frontend will take around 4-5 seconds 
 - npm install
 
 ## Running the Application Locally (without Docker)
-Once dependencies are installed, you can run the frontend using: 
-- npm run dev 
+Once dependencies are installed, you can run the frontend using: npm run dev 
 This will start the frontend application at [http://localhost:5173](http://localhost:5173).
 Then, run the backend using:
-- cd backend
-- uvicorn app.main:app --reload
+1. cd backend
+2. uvicorn app.main:app --reload
 This will start the fastapi backend at [http://172.18.0.2:3000](http://127.0.0.1:8000).
 
 ## Using Docker (Optional)
