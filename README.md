@@ -36,16 +36,26 @@ Then, run the backend using:
 2. uvicorn app.main:app --reload
 This will start the fastapi backend at [http://172.18.0.2:3000](http://127.0.0.1:8000).
 
-## Using Docker (Optional)
-To Build and Run the Docker containers: docker-compose up
+## Using Docker (Optional -- Has Issues)
+The frontend and the backend have been dockerized separately but there are some issues currently preventing full functionality.
+Backend (FastAPI): The FastAPI container starts, but there is an issue related to the main module. This results in the following error:
+ERROR:    Error loading ASGI app. Could not import module "main".
+This indicates that the main.py file, which serves as the entry point for the ASGI app, could not be imported. Further investigation into the file structure and import paths is required.
+
+Frontend (React): While the React container starts successfully and displays the server details, I am currently unable to access the frontend via localhost:3000 as expected. The frontend container outputs the following:
+Serving!
+- Local:    http://localhost:3000
+- Network:  http://172.18.0.2:3000
+Despite this, attempts to connect to the application on localhost:3000 result in a 404 error, and the frontend is not accessible. This suggests a potential issue with networking or port binding in the Docker configuration, which requires further debugging.
+
+In a working scenario, we should be able to Build and Run the Docker containers: docker-compose up
 Your backend will be running on: http://localhost:8000
 Your frontend will be running on: http://localhost:3000
 This command will build the images for both the backend and frontend, then start the containers.
-
 If you only want to build the images without running them immediately, you can use: docker-compose build
 
 ## Testing
-To run the test suite (made by Jest) for the frontend, use: npm run test
+To run the test suite (made by Jest) for the frontend, use: npm run test. 
 The test suite for the backend has been submitted in a separate folder due to issues with import errors resulting in the app not working. 
 
 ## Backend Architecture
@@ -63,9 +73,6 @@ The backend is designed with a clear separation of concerns to ensure maintainab
 Initially, I considered implementing a caching mechanism for the backend with a time-to-live (TTL) of 2 seconds to reduce API requests and improve performance.
 Reason for Not Using Cache: I decided against caching because the real-time nature of the data is critical. Even a short caching window could result in outdated or inconsistent transaction statuses and exchange rates, which would compromise the user experience. The priority was to ensure that users always see the most accurate and current data.
 
-## Dockerization:
-The backend and frontend are dockerized separately. This setup allows for easier scaling and ensures that the backend can be deployed independently of the frontend.
-
 ## Version Control:
 I employed Git version control throughout the project. As I am the only one working on the project, I decided to work on main branch. However, in a team setting, it is important to use Git branching for version control to ensure isolation of features/changes, parallel development, and easy code review and collaboration. 
 In this project, I made frequent commits after each key feature was completed to maintain a clear development history.
@@ -77,6 +84,3 @@ To efficiently handle large datasets, I also implemented server-side pagination.
 - API-Driven Pagination: The frontend passes the current page number and limit (number of items per page) as parameters to the API. Although there are 10,000 total items available, we only fetch a limited number of items (e.g., 50 items per page) to avoid overloading the client.
 - Lazy Data Fetching: While all 200 available page numbers are displayed in the UI, the actual data for a specific page is only fetched when the user selects a page number. This approach minimizes the initial data load, making the application more responsive.
 - Dynamic Data Fetching: When a user clicks on a page number, the application dynamically fetches the corresponding data from the API, ensuring that only the necessary data is loaded at any given time.
-
-
-
