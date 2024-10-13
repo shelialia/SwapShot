@@ -6,7 +6,7 @@ This project is designed to showcase the transaction fees in USDT for all Uniswa
 Please note that the data fetching on the frontend will take around 4-5 seconds when the website is first opened. Subsequent fetches will be faster. A delay will also occur for fetching information for a certain transaction and filtering.
 
 ### Use Cases
-1. When no filter or search is applied, the page will fetch the 10,00 most recent transactions for display. User can click on each of the txn_ids in the table to see more information about the transaction (such as the date and time at which it took place, the fee in USDT and fee in ETH (calculated based on the historical exchange rate at the point of the time that the transaction occured, the exchange rate at that time, and the current exchange rate)
+1. When no filter or search is applied, the page will fetch the 10,000 most recent transactions for display. User can click on each of the txn_ids in the table to see more information about the transaction (such as the date and time at which it took place, the fee in USDT and fee in ETH (calculated based on the historical exchange rate at the point of the time that the transaction occured, the exchange rate at that time, and the current exchange rate)
 2. User can filter for transactions between start date and time, and end date and time.
 3. User can search for a transaction based on the txn_id / txn_hash.
 4. User can navigate to the next page by clicking on the page numbers.
