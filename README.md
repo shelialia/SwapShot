@@ -22,40 +22,54 @@ Please note that the data fetching on the frontend will take around 4-5 seconds 
 - [npm](https://www.npmjs.com/)
 
 ### Steps to Install
-1. Clone the repository:
-- cd into your desired workspace
-- git clone https://github.com/shelialia/tokka_labs_engineering_challenge.git
 
-2. Install dependencies:
-- npm install
+1. Clone the repository:  
+   - `cd` into your desired workspace  
+   - `git clone https://github.com/shelialia/tokka_labs_engineering_challenge.git`
+
+2. Install dependencies:  
+   - for frontend: `cd frontend` `npm install`
+   - for backend: `cd backend` `pip install -r requirements.txt`
+
+3. Add your Etherscan API Key and Binance API Key and Secret Key
+   - go into the backend file. refer to .env.example to create your own .env file 
 
 ## Running the Application Locally (without Docker)
-Once dependencies are installed, you can run the frontend using: npm run dev. This will start the frontend application at [http://localhost:5173](http://localhost:5173).
-Then, run the backend using: 
-1. cd backend
-2. uvicorn app.main:app --reload
-This will start the fastapi backend at [http://172.18.0.2:3000](http://127.0.0.1:8000).
+Once dependencies are installed, you can run the frontend using:  
+1. `cd frontend`  
+2. `npm run dev`  
+
+This will start the frontend application at [http://localhost:5173](http://localhost:5173).
+
+Then, run the backend using:  
+1. `cd backend`  
+2. `uvicorn app.main:app --reload`  
+
+This will start the FastAPI backend at [http://127.0.0.1:8000](http://127.0.0.1:8000).
+You can view the FastAPI endpoints at: [http://localhost:8000/docs](http://localhost:8000/docs).
+
 
 ## Using Docker (Optional -- Has Issues)
 The frontend and the backend have been dockerized separately but there are some issues currently preventing full functionality.
-Backend (FastAPI): The FastAPI container starts, but there is an issue related to the main module. This results in the following error:
+
+### Backend (FastAPI): The FastAPI container starts, but there is an issue related to the main module. This results in the following error:
 ERROR:    Error loading ASGI app. Could not import module "main".
 This indicates that the main.py file, which serves as the entry point for the ASGI app, could not be imported. Further investigation into the file structure and import paths is required.
 
-Frontend (React): While the React container starts successfully and displays the server details, I am currently unable to access the frontend via localhost:3000 as expected. The frontend container outputs the following:
+### Frontend (React): While the React container starts successfully and displays the server details, I am currently unable to access the frontend via localhost:3000 as expected. The frontend container outputs the following:
 Serving!
 - Local:    http://localhost:3000
 - Network:  http://172.18.0.2:3000
 Despite this, attempts to connect to the application on localhost:3000 result in a 404 error, and the frontend is not accessible. This suggests a potential issue with networking or port binding in the Docker configuration, which requires further debugging.
 
-In a working scenario, we should be able to Build and Run the Docker containers: docker-compose up
+In a working scenario, we should be able to Build and Run the Docker containers: `docker-compose up`
 Your backend will be running on: http://localhost:8000
 Your frontend will be running on: http://localhost:3000
 This command will build the images for both the backend and frontend, then start the containers.
-If you only want to build the images without running them immediately, you can use: docker-compose build
+If you only want to build the images without running them immediately, you can use: `docker-compose build`
 
 ## Testing
-To run the test suite (made by Jest) for the frontend, use: npm run test. 
+To run the test suite (made by Jest) for the frontend, use: `npm run test` 
 The test suite for the backend has been submitted in a separate folder due to issues with import errors resulting in the app not working. 
 
 ## Backend Architecture
