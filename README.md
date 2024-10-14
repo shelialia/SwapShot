@@ -46,7 +46,6 @@ Then, run the backend using:
 2. `uvicorn app.main:app --reload`  
 
 This will start the FastAPI backend at [http://127.0.0.1:8000](http://127.0.0.1:8000).
-You can view the FastAPI endpoints at: [http://localhost:8000/docs](http://localhost:8000/docs).
 
 
 ## Using Docker (Optional -- Has Issues)
