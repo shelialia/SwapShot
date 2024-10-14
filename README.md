@@ -32,7 +32,7 @@ Please note that the data fetching on the frontend will take around 4-5 seconds 
    - for backend: `cd backend` `pip install -r requirements.txt`
 
 3. Add your Etherscan API Key and Binance API Key and Secret Key
-   - go into the backend file. refer to .env.example to create your own .env file 
+   - `cd backend`. refer to .env.example file to create your own .env file 
 
 ## Running the Application Locally (without Docker)
 Once dependencies are installed, you can run the frontend using:  
