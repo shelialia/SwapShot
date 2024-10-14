@@ -28,7 +28,8 @@ Please note that the data fetching on the frontend will take around 4-5 seconds 
    - `git clone https://github.com/shelialia/tokka_labs_engineering_challenge.git`
 
 2. Install dependencies:  
-   - `npm install`
+   - for frontend: `npm install`
+   - for backend: `cd backend` `pip install -r requirements.txt`
 
 ## Running the Application Locally (without Docker)
 Once dependencies are installed, you can run the frontend using:  
