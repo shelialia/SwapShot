@@ -48,11 +48,11 @@ This will start the FastAPI backend at [http://127.0.0.1:8000](http://127.0.0.1:
 ## Using Docker (Optional -- Has Issues)
 The frontend and the backend have been dockerized separately but there are some issues currently preventing full functionality.
 
-###Backend (FastAPI): The FastAPI container starts, but there is an issue related to the main module. This results in the following error:
+### Backend (FastAPI): The FastAPI container starts, but there is an issue related to the main module. This results in the following error:
 ERROR:    Error loading ASGI app. Could not import module "main".
 This indicates that the main.py file, which serves as the entry point for the ASGI app, could not be imported. Further investigation into the file structure and import paths is required.
 
-###Frontend (React): While the React container starts successfully and displays the server details, I am currently unable to access the frontend via localhost:3000 as expected. The frontend container outputs the following:
+### Frontend (React): While the React container starts successfully and displays the server details, I am currently unable to access the frontend via localhost:3000 as expected. The frontend container outputs the following:
 Serving!
 - Local:    http://localhost:3000
 - Network:  http://172.18.0.2:3000
